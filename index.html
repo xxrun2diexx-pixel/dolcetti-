@@ -962,6 +962,11 @@ function openProfile() {
     '<div class="btns"><button class="btn primary" data-act="changeIcon">Cambia icona</button><button class="btn" data-act="close">Chiudi</button><button class="btn" data-act="logout">Esci</button></div>');
 }
 
+function askLogout() {
+  modal('<h2>Vuoi uscire?</h2><p>I tuoi progressi sono salvati: li ritrovi quando rientri con nome e password.</p>' +
+    '<div class="btns"><button class="btn primary" data-act="logoutYes">Sì, esci</button><button class="btn" data-act="close">Annulla</button></div>');
+}
+
 function openWin(stars) {
   const hasNext = lvIdx + 1 < LEVELS.length;
   const st = [0, 1, 2].map(i => `<span class="st ${i < stars ? 'earn' : ''}" style="animation-delay:${(.35 + i * .35).toFixed(2)}s">${starSVG(i < stars)}</span>`).join('');
@@ -1025,7 +1030,8 @@ const acts = {
     document.querySelectorAll('.icb').forEach(x => x.classList.toggle('sel', +x.dataset.i === pendingIcon));
   },
   confirmIcon() { save.icon = pendingIcon; persist(); updateProfBtn(); closeModal(); if (!iconFirst) openProfile(); },
-  logout() { closeModal(); if (window.DolcettiApp.logout) window.DolcettiApp.logout(); },
+  logout() { askLogout(); },
+  logoutYes() { closeModal(); if (window.DolcettiApp.logout) window.DolcettiApp.logout(); },
   lv(b) { const i = +b.dataset.i; if (!unlocked(i)) { sfx.bad(); return; } openLevel(i); }
 };
 document.addEventListener('click', e => {
@@ -1073,6 +1079,8 @@ window.DolcettiApp = {
     syncToggles(); refreshMenu(); Music.sync(); updateProfBtn();
   },
   pickIcon: first => openIconPicker(first),
+  askLogout,
+  hasAccount: () => !!accountName,
   getSave: () => save,
   setAccount(name, status) {
     accountName = name || ''; updateProfBtn();
@@ -1224,14 +1232,17 @@ async function logout() {
   if (user) {
     clearTimeout(timer); await pushNow();
     try { await fb.signOut(auth); } catch (e) {}
+  }
+  if (user || App.hasAccount()) {
     try { localStorage.removeItem(LAST_KEY); } catch (e) {}
     user = null; name = '';
     App.useSave(App.GUEST_KEY, App.readLocal(App.GUEST_KEY));
+    App.setAccount(null, '');
   }
   $('#lgPass').value = ''; msg('');
   App.show('login');
 }
-$('#accBtn').addEventListener('click', logout);
+$('#accBtn').addEventListener('click', () => { if (App.hasAccount()) App.askLogout(); else logout(); });
 App.logout = logout;
 
 /* ---------- avvio ---------- */
