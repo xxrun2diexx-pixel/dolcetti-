@@ -139,6 +139,19 @@ button{font:inherit;color:inherit}
 @keyframes starIn{from{transform:scale(0) rotate(-60deg)}to{transform:none}}
 
 
+/* profilo */
+.prof{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;width:58px;height:58px;border-radius:50%;border:3px solid var(--ink);background:var(--pc,#fff);box-shadow:0 5px 0 var(--ink);padding:6px;display:grid;place-items:center;cursor:pointer;transition:transform .08s,box-shadow .08s;z-index:2}
+.prof:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.prof[hidden]{display:none}
+.prof svg,.avbig svg,.icb svg{width:100%;height:100%;display:block}
+.icons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 4px 6px}
+.icb{appearance:none;aspect-ratio:1;border:3px solid var(--ink);border-radius:22px;background:var(--pc);box-shadow:0 4px 0 var(--ink);padding:9px;cursor:pointer;transition:transform .1s}
+.icb.sel{outline:5px solid var(--c3);outline-offset:2px;transform:scale(1.07)}
+.avbig{width:96px;height:96px;border:3px solid var(--ink);border-radius:50%;box-shadow:0 5px 0 var(--ink);padding:11px;margin:0 auto 12px;background:var(--pc)}
+.srow{display:flex;justify-content:space-between;gap:12px;font-weight:800;font-size:18px;padding:8px 4px;border-bottom:2px dashed rgba(59,30,43,.2);text-align:left}
+.srow:last-of-type{border-bottom:0}
+.srow b{font-weight:900}
+
 /* account / login */
 input{-webkit-user-select:text;user-select:text}
 .field{appearance:none;width:100%;border:3px solid var(--ink);border-radius:18px;background:#fff;font:inherit;font-weight:800;font-size:20px;padding:12px 16px;color:var(--ink);box-shadow:0 4px 0 var(--ink)}
@@ -180,6 +193,7 @@ input{-webkit-user-select:text;user-select:text}
   </section>
 
   <section id="menu" class="screen">
+    <button class="prof" id="profBtn" data-act="profile" aria-label="Profilo" hidden></button>
     <div class="stack">
       <h1 class="logo" id="logo" aria-label="Dolcetti"></h1>
       <p class="tag">Abbina tre dolcetti o più</p>
@@ -260,9 +274,17 @@ const poly = (cx, cy, ro, ri, n, rot) => {
 /* ---------- salvataggio ---------- */
 const GUEST_KEY = 'dolcetti_v2';
 let storeKey = GUEST_KEY;
-const blankSave = () => ({ stars: [], sfx: true, music: true });
+const blankSave = () => ({ stars: [], sfx: true, music: true, icon: -1, stats: { wins: 0, losses: 0, best: 0 } });
+function normSave(x) {
+  if (!Array.isArray(x.stars)) x.stars = [];
+  x.icon = Number.isInteger(x.icon) ? x.icon : -1;
+  const st = x.stats && typeof x.stats === 'object' ? x.stats : {};
+  x.stats = { wins: +st.wins || 0, losses: +st.losses || 0, best: +st.best || 0 };
+  return x;
+}
 const readLocal = key => { try { const s = JSON.parse(localStorage.getItem(key)); return s && typeof s === 'object' ? s : null; } catch (e) { return null; } };
-let save = Object.assign(blankSave(), readLocal(GUEST_KEY) || {});
+let save = normSave(Object.assign(blankSave(), readLocal(GUEST_KEY) || {}));
+let accountName = '';
 const persist = () => {
   try { localStorage.setItem(storeKey, JSON.stringify(save)); } catch (e) {}
   if (typeof window.onDolcettiSave === 'function') window.onDolcettiSave(save);
@@ -751,11 +773,13 @@ async function finish(win) {
   over = true; busy = false; clearTimeout(hintTimer);
   if (win) {
     const ratio = moves / LV.moves, stars = ratio >= .35 ? 3 : ratio >= .15 ? 2 : 1;
-    save.stars[lvIdx] = Math.max(save.stars[lvIdx] || 0, stars); persist();
+    save.stars[lvIdx] = Math.max(save.stars[lvIdx] || 0, stars);
+    save.stats.wins++; save.stats.best = Math.max(save.stats.best, score); persist();
     sfx.win(); celebrate();
     await wait(1000);
     openWin(stars);
   } else {
+    save.stats.losses++; persist();
     sfx.lose();
     await wait(500);
     openLose();
@@ -904,6 +928,40 @@ function showLevels() {
   });
   show('levels');
 }
+/* ---------- profilo: icone e statistiche ---------- */
+const ICONS = [
+  ...[0, 1, 2, 3, 4, 5].map(t => ({ svg: candy(t, 0), bg: LIGHT[t] })),
+  { svg: candy(1, 1), bg: LIGHT[1] }, { svg: candy(3, 2), bg: LIGHT[3] },
+  { svg: candy(0, 3), bg: LIGHT[0] }, { svg: candy(4, 3), bg: LIGHT[4] },
+  { svg: candy(2, 1), bg: LIGHT[2] }, { svg: BOMB, bg: '#ffe0ea' }
+];
+const iconOf = () => ICONS[save.icon >= 0 && save.icon < ICONS.length ? save.icon : 0];
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let pendingIcon = 0, iconFirst = false;
+function updateProfBtn() {
+  const b = $('#profBtn'); if (!b) return;
+  b.hidden = !accountName;
+  const o = iconOf(); b.style.setProperty('--pc', o.bg); b.innerHTML = o.svg;
+}
+function openIconPicker(first) {
+  iconFirst = !!first; pendingIcon = save.icon >= 0 ? save.icon : 0;
+  modal('<h2>Scegli la tua icona</h2><div class="icons">' +
+    ICONS.map((o, i) => `<button class="icb${i === pendingIcon ? ' sel' : ''}" style="--pc:${o.bg}" data-act="pick" data-i="${i}" aria-label="Icona ${i + 1}">${o.svg}</button>`).join('') +
+    '</div><div class="btns"><button class="btn primary" data-act="confirmIcon">Conferma</button>' +
+    (first ? '' : '<button class="btn" data-act="profile">Annulla</button>') + '</div>');
+}
+function openProfile() {
+  const st = save.stats, total = LEVELS.length, o = iconOf();
+  const done = save.stars.filter(x => x > 0).length;
+  const sum = save.stars.reduce((a, b) => a + (b || 0), 0);
+  const three = save.stars.filter(x => x >= 3).length;
+  const rows = [['Livelli completati', `${done} / ${total}`], ['Stelle', `${sum} / ${total * 3}`], ['Livelli a 3 stelle', three],
+    ['Partite vinte', st.wins], ['Partite perse', st.losses], ['Miglior punteggio', st.best]];
+  modal(`<div class="avbig" style="--pc:${o.bg}">${o.svg}</div><h2>${esc(accountName)}</h2>` +
+    rows.map(([k, v]) => `<div class="srow"><span>${k}</span><b>${v}</b></div>`).join('') +
+    '<div class="btns"><button class="btn primary" data-act="changeIcon">Cambia icona</button><button class="btn" data-act="close">Chiudi</button><button class="btn" data-act="logout">Esci</button></div>');
+}
+
 function openWin(stars) {
   const hasNext = lvIdx + 1 < LEVELS.length;
   const st = [0, 1, 2].map(i => `<span class="st ${i < stars ? 'earn' : ''}" style="animation-delay:${(.35 + i * .35).toFixed(2)}s">${starSVG(i < stars)}</span>`).join('');
@@ -960,6 +1018,14 @@ const acts = {
   next() { closeModal(); openLevel(lvIdx + 1); },
   tsnd() { setSfx(!Snd.sfx); },
   tmus() { setMusic(!Snd.music); },
+  profile() { openProfile(); },
+  changeIcon() { openIconPicker(false); },
+  pick(b) {
+    pendingIcon = +b.dataset.i;
+    document.querySelectorAll('.icb').forEach(x => x.classList.toggle('sel', +x.dataset.i === pendingIcon));
+  },
+  confirmIcon() { save.icon = pendingIcon; persist(); updateProfBtn(); closeModal(); if (!iconFirst) openProfile(); },
+  logout() { closeModal(); if (window.DolcettiApp.logout) window.DolcettiApp.logout(); },
   lv(b) { const i = +b.dataset.i; if (!unlocked(i)) { sfx.bad(); return; } openLevel(i); }
 };
 document.addEventListener('click', e => {
@@ -1001,14 +1067,15 @@ window.DolcettiApp = {
   // cambia salvataggio attivo (ospite o account) e aggiorna tutto
   useSave(key, data) {
     storeKey = key;
-    save = Object.assign(blankSave(), data || {});
-    if (!Array.isArray(save.stars)) save.stars = [];
+    save = normSave(Object.assign(blankSave(), data || {}));
     Snd.sfx = save.sfx !== false; Snd.music = save.music !== false;
     try { localStorage.setItem(storeKey, JSON.stringify(save)); } catch (e) {}
-    syncToggles(); refreshMenu(); Music.sync();
+    syncToggles(); refreshMenu(); Music.sync(); updateProfBtn();
   },
+  pickIcon: first => openIconPicker(first),
   getSave: () => save,
   setAccount(name, status) {
+    accountName = name || ''; updateProfBtn();
     $('#accName').textContent = name ? 'Giocatore: ' + name : 'Stai giocando come ospite';
     $('#accBtn').textContent = name ? 'Esci' : 'Accedi';
     $('#cloudSt').textContent = status || '';
@@ -1062,7 +1129,10 @@ const stars = a => { const o = []; for (let i = 0; i < (a ? a.length : 0); i++) 
 function merge(local, cloud) {
   const n = Math.max((local.stars || []).length, (cloud.stars || []).length), st = [];
   for (let i = 0; i < n; i++) st.push(Math.max((local.stars || [])[i] || 0, (cloud.stars || [])[i] || 0));
-  return { stars: st, sfx: cloud.sfx !== false, music: cloud.music !== false };
+  const ls = local.stats || {}, cs = cloud.stats || {}, stats = {};
+  for (const k of ['wins', 'losses', 'best']) stats[k] = Math.max(+ls[k] || 0, +cs[k] || 0);
+  const icon = Number.isInteger(cloud.icon) && cloud.icon >= 0 ? cloud.icon : (Number.isInteger(local.icon) ? local.icon : -1);
+  return { stars: st, sfx: cloud.sfx !== false, music: cloud.music !== false, icon, stats };
 }
 const setStatus = t => App.setStatus(t);
 const msg = (t, ok) => { const m = $('#lgMsg'); m.textContent = t || ''; m.classList.toggle('ok', !!ok); };
@@ -1093,7 +1163,9 @@ async function pushNow() {
   setStatus('Salvo…');
   try {
     await withTimeout(fb.setDoc(fb.doc(db, 'players', user.uid), {
-      name, stars: stars(s.stars), sfx: s.sfx !== false, music: s.music !== false, updatedAt: fb.serverTimestamp()
+      name, stars: stars(s.stars), sfx: s.sfx !== false, music: s.music !== false,
+      icon: Number.isInteger(s.icon) ? s.icon : -1, stats: { wins: s.stats.wins, losses: s.stats.losses, best: s.stats.best },
+      updatedAt: fb.serverTimestamp()
     }), 6000);
     setStatus('Salvato nel cloud');
   } catch (e) { setStatus('Offline: salvo sul telefono'); }
@@ -1113,6 +1185,7 @@ async function enterAccount(u, seedGuest) {
     const snap = await withTimeout(fb.getDoc(fb.doc(db, 'players', u.uid)), 8000);
     const merged = snap.exists() ? merge(App.getSave(), snap.data()) : App.getSave();
     App.useSave(keyFor(u.uid), merged);
+    if (!(App.getSave().icon >= 0)) App.pickIcon(true);
     await pushNow();
   } catch (e) { setStatus('Offline: salvo sul telefono'); }
 }
@@ -1147,7 +1220,7 @@ $('#lgGuest').addEventListener('click', goGuest);
 $('#lgPass').addEventListener('keydown', e => { if (e.key === 'Enter') submit('in'); });
 $('#lgName').addEventListener('keydown', e => { if (e.key === 'Enter') $('#lgPass').focus(); });
 
-$('#accBtn').addEventListener('click', async () => {
+async function logout() {
   if (user) {
     clearTimeout(timer); await pushNow();
     try { await fb.signOut(auth); } catch (e) {}
@@ -1157,7 +1230,9 @@ $('#accBtn').addEventListener('click', async () => {
   }
   $('#lgPass').value = ''; msg('');
   App.show('login');
-});
+}
+$('#accBtn').addEventListener('click', logout);
+App.logout = logout;
 
 /* ---------- avvio ---------- */
 (async function start() {
