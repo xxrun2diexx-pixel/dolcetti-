@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#2b1055">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Dolcetti</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+  html,body{margin:0;height:100%;overflow:hidden;background:linear-gradient(160deg,#2b1055,#7597de);font-family:system-ui,sans-serif;color:#fff}
+  #app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:12px}
+  #hud{display:flex;gap:10px;width:min(94vw,520px)}
+  .box{flex:1;background:rgba(0,0,0,.28);border-radius:14px;padding:8px 6px;text-align:center}
+  .box small{display:block;font-size:11px;opacity:.75;letter-spacing:.08em;text-transform:uppercase}
+  .box b{font-size:22px}
+  #board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:min(94vw,520px);aspect-ratio:1;background:rgba(0,0,0,.3);padding:6px;border-radius:18px;touch-action:none}
+  .cell{display:flex;align-items:center;justify-content:center;font-size:min(8vw,40px);background:rgba(255,255,255,.12);border-radius:12px;transition:transform .15s,background .15s}
+  .cell.sel{background:rgba(255,255,255,.45);transform:scale(1.12)}
+  .cell.pop{animation:pop .25s forwards}
+  .cell.drop{animation:drop .25s}
+  @keyframes pop{to{transform:scale(0);opacity:0}}
+  @keyframes drop{from{transform:translateY(-60%);opacity:.3}to{transform:none;opacity:1}}
+  #msg{min-height:22px;font-size:15px;opacity:.9}
+  #over{position:fixed;inset:0;background:rgba(20,5,50,.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+  #over.show{display:flex}
+  #over h1{margin:0;font-size:34px}
+  button{font:inherit;font-weight:700;font-size:18px;padding:12px 28px;border:0;border-radius:30px;background:#ffd34d;color:#3b2200}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="box"><small>Punti</small><b id="score">0</b></div>
+    <div class="box"><small>Mosse</small><b id="moves">25</b></div>
+    <div class="box"><small>Record</small><b id="best">0</b></div>
+  </div>
+  <div id="board"></div>
+  <div id="msg">Tocca due dolcetti vicini o trascina per scambiarli</div>
+  <button id="newbtn" style="font-size:14px;padding:8px 18px;opacity:.85">Nuova partita</button>
+</div>
+<div id="over">
+  <h1>Partita finita!</h1>
+  <div id="final" style="font-size:20px"></div>
+  <button id="again">Gioca ancora</button>
+</div>
+
+<script>
+const N = 8, MOVES = 25;
+const TYPES = ['🍒','🍋','🍇','🍏','🍓','🍊'];
+let grid = [], score = 0, moves = MOVES, sel = null, busy = false;
+let best = 0;
+try { best = +localStorage.getItem('dolcetti_best') || 0; } catch(e){}
+
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rnd = () => Math.floor(Math.random() * TYPES.length);
+
+function findMatches() {
+  const m = new Set();
+  for (let r = 0; r < N; r++) for (let c = 0; c < N - 2; c++) {
+    const i = r*N + c, v = grid[i];
+    if (v !== null && v === grid[i+1] && v === grid[i+2]) { m.add(i); m.add(i+1); m.add(i+2); }
+  }
+  for (let c = 0; c < N; c++) for (let r = 0; r < N - 2; r++) {
+    const i = r*N + c, v = grid[i];
+    if (v !== null && v === grid[i+N] && v === grid[i+2*N]) { m.add(i); m.add(i+N); m.add(i+2*N); }
+  }
+  return m;
+}
+
+function newGrid() {
+  do {
+    grid = Array.from({length: N*N}, rnd);
+    let m;
+    while ((m = findMatches()).size) m.forEach(i => grid[i] = rnd());
+  } while (!hasMove());
+}
+
+function hasMove() {
+  const tryPairs = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    if (c < N-1) tryPairs.push([r*N+c, r*N+c+1]);
+    if (r < N-1) tryPairs.push([r*N+c, (r+1)*N+c]);
+  }
+  for (const [a,b] of tryPairs) {
+    [grid[a], grid[b]] = [grid[b], grid[a]];
+    const ok = findMatches().size > 0;
+    [grid[a], grid[b]] = [grid[b], grid[a]];
+    if (ok) return true;
+  }
+  return false;
+}
+
+let dropped = new Set();
+function render(popping = new Set()) {
+  boardEl.innerHTML = '';
+  grid.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'cell' + (sel === i ? ' sel' : '') + (popping.has(i) ? ' pop' : '') + (dropped.has(i) ? ' drop' : '');
+    d.dataset.i = i;
+    d.textContent = v === null ? '' : TYPES[v];
+    boardEl.appendChild(d);
+  });
+  dropped = new Set();
+  $('score').textContent = score;
+  $('moves').textContent = moves;
+  $('best').textContent = best;
+}
+
+function gravity() {
+  for (let c = 0; c < N; c++) {
+    let write = N - 1;
+    for (let r = N - 1; r >= 0; r--) {
+      const v = grid[r*N + c];
+      if (v !== null) {
+        if (write !== r) dropped.add(write*N + c);
+        grid[write*N + c] = v;
+        write--;
+      }
+    }
+    for (let r = write; r >= 0; r--) { grid[r*N + c] = rnd(); dropped.add(r*N + c); }
+    for (let r = write; r >= 0; r--) {} // nuove caselle riempite sopra
+  }
+}
+
+async function resolve() {
+  let combo = 0;
+  while (true) {
+    const m = findMatches();
+    if (!m.size) break;
+    combo++;
+    score += m.size * 10 * combo;
+    $('msg').textContent = combo > 1 ? `Combo x${combo}! 🔥` : '';
+    render(m);
+    await sleep(260);
+    m.forEach(i => grid[i] = null);
+    gravity();
+    render();
+    await sleep(280);
+  }
+}
+
+function adjacent(a, b) {
+  const ra = Math.floor(a/N), ca = a%N, rb = Math.floor(b/N), cb = b%N;
+  return Math.abs(ra-rb) + Math.abs(ca-cb) === 1;
+}
+
+async function attemptSwap(a, b) {
+  busy = true; sel = null;
+  [grid[a], grid[b]] = [grid[b], grid[a]];
+  render();
+  await sleep(150);
+  if (!findMatches().size) {
+    [grid[a], grid[b]] = [grid[b], grid[a]];
+    render();
+    $('msg').textContent = 'Nessuna combinazione';
+    await sleep(150);
+    busy = false;
+    return;
+  }
+  moves--;
+  await resolve();
+  if (score > best) { best = score; try { localStorage.setItem('dolcetti_best', best); } catch(e){} }
+  if (!hasMove() && moves > 0) { $('msg').textContent = 'Rimescolo…'; newGrid(); }
+  render();
+  busy = false;
+  if (moves <= 0) endGame();
+}
+
+function endGame() {
+  $('final').textContent = `Punteggio: ${score}` + (score >= best && score > 0 ? ' — nuovo record! 🏆' : '');
+  $('over').classList.add('show');
+}
+
+function start() {
+  score = 0; moves = MOVES; sel = null; busy = false;
+  newGrid();
+  $('over').classList.remove('show');
+  $('msg').textContent = 'Tocca due dolcetti vicini o trascina per scambiarli';
+  render();
+}
+
+let down = null;
+boardEl.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.cell');
+  if (!el) return;
+  down = {i: +el.dataset.i, x: e.clientX, y: e.clientY};
+});
+boardEl.addEventListener('pointerup', e => {
+  if (!down || busy) { down = null; return; }
+  const dx = e.clientX - down.x, dy = e.clientY - down.y, i = down.i;
+  down = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) > 22) {
+    let t;
+    if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0 && i%N < N-1) t = i+1; else if (dx < 0 && i%N > 0) t = i-1; }
+    else { if (dy > 0 && i < N*(N-1)) t = i+N; else if (dy < 0 && i >= N) t = i-N; }
+    if (t !== undefined) attemptSwap(i, t);
+    return;
+  }
+  if (sel === null) { sel = i; render(); }
+  else if (sel === i) { sel = null; render(); }
+  else if (adjacent(sel, i)) attemptSwap(sel, i);
+  else { sel = i; render(); }
+});
+boardEl.addEventListener('pointercancel', () => down = null);
+
+$('again').onclick = start;
+$('newbtn').onclick = () => { if (!busy) start(); };
+
+start();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
