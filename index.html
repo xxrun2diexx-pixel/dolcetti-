@@ -139,6 +139,11 @@ button{font:inherit;color:inherit}
 @keyframes starIn{from{transform:scale(0) rotate(-60deg)}to{transform:none}}
 
 
+/* menu: scorre se lo schermo è basso, e lascia spazio a monete e profilo */
+#menu{overflow-y:auto}
+#menu .stack{padding:56px 0 8px}
+@media (max-height:740px){#menu .stack{gap:10px;padding-top:50px}.main{gap:10px}.main .btn{padding-top:9px;padding-bottom:9px}}
+
 /* monete, negozio, boost */
 .ci{display:inline-grid;place-items:center;vertical-align:middle}
 .ci svg{width:26px;height:26px}
@@ -238,10 +243,10 @@ input{-webkit-user-select:text;user-select:text}
       <p class="tag">Abbina tre dolcetti o più</p>
       <div class="showcase" id="showcase" aria-hidden="true"></div>
       <div class="main">
-        <button class="btn primary" data-act="play" id="playLbl">Gioca</button>
-        <button class="btn" data-act="levels">Livelli</button>
+        <button class="btn primary withic" data-act="play"><i class="ci playI"></i><span id="playLbl">Gioca</span></button>
+        <button class="btn withic" data-act="levels"><i class="ci levI"></i>Livelli</button>
         <button class="btn withic" data-act="shop"><i class="ci shopI"></i>Negozio</button>
-        <button class="btn" data-act="help">Come si gioca</button>
+        <button class="btn withic" data-act="help"><i class="ci helpI"></i>Come si gioca</button>
       </div>
       <div class="row">
         <button class="ib" data-act="tsnd" data-t="snd" aria-label="Suoni"></button>
@@ -1035,7 +1040,7 @@ function modal(html) { modalEl.innerHTML = `<div class="card">${html}</div>`; mo
 function closeModal() { modalEl.classList.remove('on'); modalEl.innerHTML = ''; }
 const unlocked = i => i === 0 || (save.stars[i - 1] > 0);
 function nextLv() { for (let i = 0; i < LEVELS.length; i++) if (!(save.stars[i] > 0)) return i; return LEVELS.length - 1; }
-function refreshMenu() { updateCoins(); $('#playLbl').textContent = save.stars.some(s => s > 0) ? `Gioca il livello ${nextLv() + 1}` : 'Gioca'; }
+function refreshMenu() { updateCoins(); $('#playLbl').textContent = save.stars.some(s => s > 0) ? `Livello ${nextLv() + 1}` : 'Gioca'; }
 function showLevels() {
   const g = $('#grid'); g.innerHTML = '';
   LEVELS.forEach((L, i) => {
@@ -1059,6 +1064,13 @@ const SHOP = (() => {
     `<rect x="14.5" y="35" width="8" height="8" rx="1.5" fill="#aecbff" stroke="${INKC}" stroke-width="2.5"/><rect x="41.5" y="35" width="8" height="8" rx="1.5" fill="#aecbff" stroke="${INKC}" stroke-width="2.5"/>` +
     aw + `<rect x="9" y="5" width="46" height="7" rx="3.5" fill="#ffcf33" stroke="${INKC}" stroke-width="3"/></svg>`;
 })();
+const PLAY_IC = `<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#ffcf33" stroke="${INKC}" stroke-width="3.5"/><circle cx="32" cy="32" r="19" fill="#ffe27a" stroke="#b88a00" stroke-width="2"/><path d="M26.5 21.5v21l18-10.5z" fill="#fff" stroke="${INKC}" stroke-width="3.5" stroke-linejoin="round"/></svg>`;
+const LEVELS_IC = (() => {
+  let g = '';
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) g += `<rect x="${8 + 17 * i}" y="${8 + 17 * j}" width="14" height="14" rx="4.5" fill="${COL[(i + j * 3 + (j ? 1 : 0)) % 6]}" stroke="${INKC}" stroke-width="2.6"/>`;
+  return `<svg viewBox="0 0 64 64">${g}<path d="M15 12.6l.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1-1.5-1.5 2.1-.3z" fill="#fff"/></svg>`;
+})();
+const HELP_IC = `<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#aecbff" stroke="${INKC}" stroke-width="3.5"/><path d="M23 26a9 9 0 1 1 13.5 7.8c-2.8 1.6-4.5 3-4.5 6.2" fill="none" stroke="${INKC}" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="48.5" r="3.4" fill="${INKC}"/></svg>`;
 const BOOSTS = [
   { id: 'hammer', name: 'Martello', desc: 'Elimina un dolcetto a tua scelta.', tip: 'Tocca il dolcetto da eliminare', price: 100, bg: LIGHT[1],
     svg: `<svg viewBox="0 0 32 32"><g transform="rotate(35 16 16)"><rect x="13.8" y="9" width="4.4" height="19" rx="2" fill="#d98b4a" ${SK}/><rect x="6" y="4" width="20" height="10" rx="3" fill="#c9c2d4" ${SK}/><rect x="6" y="4" width="6" height="10" rx="3" fill="#ff5c8a" ${SK}/></g></svg>` },
@@ -1281,6 +1293,9 @@ document.addEventListener('visibilitychange', () => {
   document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = IC[el.dataset.icon]; });
   document.querySelectorAll('.coinI').forEach(el => { el.innerHTML = COIN; });
   document.querySelectorAll('.shopI').forEach(el => { el.innerHTML = SHOP; });
+  document.querySelectorAll('.playI').forEach(el => { el.innerHTML = PLAY_IC; });
+  document.querySelectorAll('.levI').forEach(el => { el.innerHTML = LEVELS_IC; });
+  document.querySelectorAll('.helpI').forEach(el => { el.innerHTML = HELP_IC; });
   $('#shopArt').innerHTML = SHOP; updateCoins(); renderBoosts();
   for (let i = 0; i < N * N; i++) {
     const a = document.createElement('div'); a.className = ((i / N | 0) + i % N) % 2 ? 'b' : 'a'; bgEl.appendChild(a);
