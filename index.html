@@ -14,10 +14,10 @@
   --ink:#3b1e2b;--mint:#c6f1de;--pink:#ffb3cb;--pink2:#ff7aa5;--blush:#fff3f7;
   --c0:#ff5c8a;--c1:#ffcf33;--c2:#2fd6a0;--c3:#4a86ff;--c4:#a35cf0;--c5:#ff8a3d;
   --ol:-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink),2px 2px 0 var(--ink),0 3px 0 var(--ink);
-  --bs:min(calc(94vw - 26px),calc(100vh - 340px),560px);
+  --bs:min(calc(94vw - 26px),calc(100vh - 410px),560px);
   font-family:"Nunito","Baloo 2","Arial Rounded MT Bold",ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
-@supports(height:100dvh){:root{--bs:min(calc(94vw - 26px),calc(100dvh - 340px),560px)}}
+@supports(height:100dvh){:root{--bs:min(calc(94vw - 26px),calc(100dvh - 410px),560px)}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;color:var(--ink)}
 body{
@@ -139,6 +139,43 @@ button{font:inherit;color:inherit}
 @keyframes starIn{from{transform:scale(0) rotate(-60deg)}to{transform:none}}
 
 
+/* monete, negozio, boost */
+.ci{display:inline-grid;place-items:center;vertical-align:middle}
+.ci svg{width:26px;height:26px}
+.chip{appearance:none;font:inherit;color:var(--ink);display:flex;align-items:center;gap:6px;height:46px;padding:0 14px 0 8px;border:3px solid var(--ink);border-radius:24px;background:#fff;box-shadow:0 5px 0 var(--ink);font-weight:900;font-size:20px;cursor:pointer;transition:transform .08s,box-shadow .08s}
+button.chip:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.chip svg{width:28px;height:28px}
+.menu-chip{position:absolute;top:max(14px,env(safe-area-inset-top));left:14px;z-index:2;margin-top:6px}
+.chip.static{cursor:default;font-size:18px;height:42px}
+.btn.withic{display:flex;align-items:center;justify-content:center;gap:10px}
+.btn.withic .ci svg{width:32px;height:32px}
+.btn.small.withic{gap:6px}
+.btn.small.withic .ci svg{width:22px;height:22px}
+.btn.off{opacity:.45}
+.shopart{width:92px;height:92px;margin:2px 0 4px;animation:bob 2.4s ease-in-out infinite}
+.shopart svg{width:100%;height:100%;filter:drop-shadow(0 4px 0 rgba(59,30,43,.25))}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-2deg)}}
+#shop{overflow:hidden}
+.shopmsg{margin:0 0 4px;min-height:22px;font-weight:800;font-size:16px;text-align:center}
+.shoplist{display:flex;flex-direction:column;gap:14px;width:min(94vw,460px);padding:8px 6px 28px;overflow:auto;flex:1;min-height:0}
+.item{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--ink);border-radius:24px;box-shadow:0 5px 0 var(--ink);padding:12px;text-align:left}
+.item .ico{flex:none;width:64px;height:64px;border:3px solid var(--ink);border-radius:20px;background:var(--pc);padding:8px}
+.item .ico svg,.bst svg{width:100%;height:100%;display:block}
+.item .txt{flex:1;min-width:0}
+.item b{display:block;font-size:20px;font-weight:900}
+.item small{display:block;font-size:14px;font-weight:700;opacity:.75;line-height:1.25}
+.item .own{font-size:13px;font-weight:900;color:#0f8a63;margin-top:3px}
+.shoplist .note{font-size:15px;font-weight:700;text-align:center;opacity:.8;margin:4px 8px 0}
+.boosts{display:flex;gap:16px;justify-content:center;margin-top:14px;width:min(94vw,560px)}
+.bst{position:relative;appearance:none;width:60px;height:60px;border-radius:20px;border:3px solid var(--ink);background:var(--pc);box-shadow:0 5px 0 var(--ink);padding:8px;cursor:pointer;transition:transform .08s,box-shadow .08s}
+.bst:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.bst .n{position:absolute;right:-9px;top:-11px;min-width:26px;height:26px;border-radius:13px;background:#ff5a5f;color:#fff;border:3px solid var(--ink);font-size:14px;font-weight:900;line-height:20px;text-align:center;padding:0 4px}
+.bst.zero .n{background:#fff;color:var(--ink)}
+.bst.armed{outline:5px solid var(--c3);outline-offset:3px;transform:translateY(-4px)}
+.bmsg{margin:8px 0 0;min-height:22px;font-weight:800;font-size:16px;text-align:center}
+.earn{display:flex;justify-content:center;align-items:center;gap:8px;font-size:22px !important}
+.wal{display:flex;justify-content:center;align-items:center;gap:8px}
+
 /* profilo */
 .prof{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;width:58px;height:58px;border-radius:50%;border:3px solid var(--ink);background:var(--pc,#fff);box-shadow:0 5px 0 var(--ink);padding:6px;display:grid;place-items:center;cursor:pointer;transition:transform .08s,box-shadow .08s;z-index:2}
 .prof:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
@@ -194,6 +231,7 @@ input{-webkit-user-select:text;user-select:text}
   </section>
 
   <section id="menu" class="screen">
+    <button class="chip menu-chip" data-act="shop" aria-label="Monete e negozio"><i class="ci coinI"></i><b class="coinN">0</b></button>
     <button class="prof" id="profBtn" data-act="profile" aria-label="Profilo" hidden></button>
     <div class="stack">
       <h1 class="logo" id="logo" aria-label="Dolcetti"></h1>
@@ -202,6 +240,7 @@ input{-webkit-user-select:text;user-select:text}
       <div class="main">
         <button class="btn primary" data-act="play" id="playLbl">Gioca</button>
         <button class="btn" data-act="levels">Livelli</button>
+        <button class="btn withic" data-act="shop"><i class="ci shopI"></i>Negozio</button>
         <button class="btn" data-act="help">Come si gioca</button>
       </div>
       <div class="row">
@@ -222,11 +261,22 @@ input{-webkit-user-select:text;user-select:text}
     <div class="grid" id="grid"></div>
   </section>
 
+  <section id="shop" class="screen">
+    <div class="top">
+      <button class="ib" data-act="menu" data-icon="back" aria-label="Indietro"></button>
+      <h2>Negozio</h2>
+      <span class="chip static"><i class="ci coinI"></i><b class="coinN">0</b></span>
+    </div>
+    <div class="shopart" id="shopArt"></div>
+    <p class="shopmsg" id="shopMsg"></p>
+    <div class="shoplist" id="shopList"></div>
+  </section>
+
   <section id="game" class="screen">
     <div class="top">
       <button class="ib" data-act="pause" data-icon="pause" aria-label="Pausa"></button>
       <h2 id="lvTitle">Livello 1</h2>
-      <span class="sp"></span>
+      <span class="chip static"><i class="ci coinI"></i><b class="coinN">0</b></span>
     </div>
     <div class="stats">
       <div class="stat" id="mvBox"><small>Mosse</small><b id="mv">0</b></div>
@@ -242,6 +292,8 @@ input{-webkit-user-select:text;user-select:text}
         <div id="banner"></div>
       </div>
     </div>
+    <div class="boosts" id="boosts"></div>
+    <p class="bmsg" id="bmsg"></p>
   </section>
 </main>
 <div id="modal" role="dialog" aria-modal="true"></div>
@@ -275,12 +327,17 @@ const poly = (cx, cy, ro, ri, n, rot) => {
 /* ---------- salvataggio ---------- */
 const GUEST_KEY = 'dolcetti_v2';
 let storeKey = GUEST_KEY;
-const blankSave = () => ({ stars: [], sfx: true, music: true, icon: -1, stats: { wins: 0, losses: 0, best: 0 } });
+const BOOST_IDS = ['hammer', 'row', 'color', 'shuffle'];
+const blankSave = () => ({ stars: [], sfx: true, music: true, icon: -1, stats: { wins: 0, losses: 0, best: 0 }, coins: 0, boosts: { hammer: 0, row: 0, color: 0, shuffle: 0 }, wAt: 0 });
 function normSave(x) {
   if (!Array.isArray(x.stars)) x.stars = [];
   x.icon = Number.isInteger(x.icon) ? x.icon : -1;
   const st = x.stats && typeof x.stats === 'object' ? x.stats : {};
   x.stats = { wins: +st.wins || 0, losses: +st.losses || 0, best: +st.best || 0 };
+  x.coins = Number.isInteger(x.coins) && x.coins > 0 ? x.coins : 0;
+  const bo = x.boosts && typeof x.boosts === 'object' ? x.boosts : {};
+  x.boosts = {}; BOOST_IDS.forEach(k => { x.boosts[k] = Math.max(0, Math.floor(+bo[k]) || 0); });
+  x.wAt = +x.wAt || 0;
   return x;
 }
 const readLocal = key => { try { const s = JSON.parse(localStorage.getItem(key)); return s && typeof s === 'object' ? s : null; } catch (e) { return null; } };
@@ -515,7 +572,7 @@ const LEVELS = [
 class Cancel {}
 let LV = null, lvIdx = 0, gen = 0, uid = 0;
 let board = [], iceG = [], moves = 0, score = 0, collected = [], iceLeft = 0;
-let busy = true, over = true, sel = null, hintTimer = null;
+let busy = true, over = true, sel = null, hintTimer = null, armed = null;
 const tilesEl = $('#tiles'), iceEl = $('#iceLayer'), bgEl = $('#bgLayer'), fxEl = $('#fx'),
       boardEl = $('#board'), frameEl = $('#frame'), modalEl = $('#modal'), goalsEl = $('#goals');
 const wait = async ms => { const g = gen; await sleep(ms); if (g !== gen) throw new Cancel(); };
@@ -833,10 +890,12 @@ async function finish(win) {
   if (win) {
     const ratio = moves / LV.moves, stars = ratio >= .35 ? 3 : ratio >= .15 ? 2 : 1;
     save.stars[lvIdx] = Math.max(save.stars[lvIdx] || 0, stars);
+    const earn = Math.max(20, Math.round(score / 50));
+    save.coins += earn; save.wAt = Date.now(); updateCoins();
     save.stats.wins++; save.stats.best = Math.max(save.stats.best, score); persist();
     sfx.win(); celebrate();
     await wait(1000);
-    openWin(stars);
+    openWin(stars, earn);
   } else {
     save.stats.losses++; persist();
     sfx.lose();
@@ -900,6 +959,7 @@ function cellAt(e) {
 boardEl.addEventListener('pointerdown', e => {
   if (busy || over) return;
   const p = cellAt(e); if (!p || !board[p.r][p.c]) return;
+  if (armed) { useBoost(p.r, p.c); return; }
   drag = { r: p.r, c: p.c, x: e.clientX, y: e.clientY, done: false };
   resetHint(true);
 });
@@ -962,6 +1022,7 @@ function openLevel(i, direct) {
   iceG = Array.from({ length: N }, (_, r) => Array.from({ length: N }, (_, c) => { const v = LV.ice ? LV.ice(r, c) : 0; if (v > 0) iceLeft++; return v; }));
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) renderIceCell(r, c);
   buildChips(); hud();
+  armed = null; setBoostMsg(''); renderBoosts();
   $('#lvTitle').textContent = 'Livello ' + (i + 1);
   show('game');
   if (direct) { closeModal(); beginLevel(); return; }
@@ -974,7 +1035,7 @@ function modal(html) { modalEl.innerHTML = `<div class="card">${html}</div>`; mo
 function closeModal() { modalEl.classList.remove('on'); modalEl.innerHTML = ''; }
 const unlocked = i => i === 0 || (save.stars[i - 1] > 0);
 function nextLv() { for (let i = 0; i < LEVELS.length; i++) if (!(save.stars[i] > 0)) return i; return LEVELS.length - 1; }
-function refreshMenu() { $('#playLbl').textContent = save.stars.some(s => s > 0) ? `Gioca il livello ${nextLv() + 1}` : 'Gioca'; }
+function refreshMenu() { updateCoins(); $('#playLbl').textContent = save.stars.some(s => s > 0) ? `Gioca il livello ${nextLv() + 1}` : 'Gioca'; }
 function showLevels() {
   const g = $('#grid'); g.innerHTML = '';
   LEVELS.forEach((L, i) => {
@@ -987,6 +1048,79 @@ function showLevels() {
   });
   show('levels');
 }
+/* ---------- monete, negozio e boost ---------- */
+const INKC = '#3b1e2b', SK = `stroke="${INKC}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"`;
+const COIN = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffcf33" stroke="${INKC}" stroke-width="2.4"/><circle cx="12" cy="12" r="6.4" fill="#ffe27a" stroke="#b88a00" stroke-width="1.6"/><path d="M12 8.6l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="#e0a200"/></svg>`;
+const SHOP = (() => {
+  let aw = '';
+  for (let k = 0; k < 4; k++) aw += `<path d="M${12 + 10 * k} 10H${22 + 10 * k}L${19 + 13 * k} 28a6.5 6.5 0 0 1-13 0Z" fill="${k % 2 ? '#fff' : '#ff5c8a'}" stroke="${INKC}" stroke-width="3" stroke-linejoin="round"/>`;
+  return `<svg viewBox="0 0 64 64"><rect x="11" y="27" width="42" height="29" rx="3" fill="#fff4d6" stroke="${INKC}" stroke-width="3"/>` +
+    `<rect x="25" y="37" width="14" height="19" rx="2" fill="#4a86ff" stroke="${INKC}" stroke-width="3"/><circle cx="35.5" cy="47" r="1.4" fill="#fff"/>` +
+    `<rect x="14.5" y="35" width="8" height="8" rx="1.5" fill="#aecbff" stroke="${INKC}" stroke-width="2.5"/><rect x="41.5" y="35" width="8" height="8" rx="1.5" fill="#aecbff" stroke="${INKC}" stroke-width="2.5"/>` +
+    aw + `<rect x="9" y="5" width="46" height="7" rx="3.5" fill="#ffcf33" stroke="${INKC}" stroke-width="3"/></svg>`;
+})();
+const BOOSTS = [
+  { id: 'hammer', name: 'Martello', desc: 'Elimina un dolcetto a tua scelta.', tip: 'Tocca il dolcetto da eliminare', price: 100, bg: LIGHT[1],
+    svg: `<svg viewBox="0 0 32 32"><g transform="rotate(35 16 16)"><rect x="13.8" y="9" width="4.4" height="19" rx="2" fill="#d98b4a" ${SK}/><rect x="6" y="4" width="20" height="10" rx="3" fill="#c9c2d4" ${SK}/><rect x="6" y="4" width="6" height="10" rx="3" fill="#ff5c8a" ${SK}/></g></svg>` },
+  { id: 'row', name: 'Fila', desc: 'Cancella un\'intera riga di dolcetti.', tip: 'Tocca una riga da cancellare', price: 150, bg: LIGHT[3],
+    svg: `<svg viewBox="0 0 32 32"><rect x="3" y="4" width="26" height="14" rx="6" fill="#ff5c8a" ${SK}/><circle cx="9.5" cy="11" r="2" fill="#fff"/><circle cx="16" cy="11" r="2" fill="#fff"/><circle cx="22.5" cy="11" r="2" fill="#fff"/><path d="M5 25h22M9 21.5L5 25l4 3.5M23 21.5l4 3.5-4 3.5" fill="none" ${SK}/></svg>` },
+  { id: 'color', name: 'Colore', desc: 'Elimina tutti i dolcetti dello stesso colore.', tip: 'Tocca un dolcetto: spariscono tutti quelli del suo colore', price: 200, bg: LIGHT[4], svg: BOMB },
+  { id: 'shuffle', name: 'Mescola', desc: 'Rimescola tutti i dolcetti della griglia.', tip: '', price: 80, bg: LIGHT[2],
+    svg: `<svg viewBox="0 0 32 32"><path d="M6 14a10 10 0 0 1 17-5" fill="none" ${SK}/><path d="M24 3v7h-7" fill="none" ${SK}/><path d="M26 18a10 10 0 0 1-17 5" fill="none" ${SK}/><path d="M8 29v-7h7" fill="none" ${SK}/></svg>` }
+];
+const MOVES_PRICE = 100;
+const updateCoins = () => document.querySelectorAll('.coinN').forEach(e => { e.textContent = save.coins; });
+function wallet(fn) { fn(save); save.wAt = Date.now(); persist(); updateCoins(); }
+function setBoostMsg(t) { const m = $('#bmsg'); if (m) m.textContent = t || ''; }
+function renderBoosts() {
+  const b = $('#boosts'); if (!b) return;
+  b.innerHTML = BOOSTS.map(x => `<button class="bst${armed === x.id ? ' armed' : ''}${save.boosts[x.id] ? '' : ' zero'}" style="--pc:${x.bg}" data-act="boost" data-id="${x.id}" aria-label="${x.name}">${x.svg}<span class="n">${save.boosts[x.id] || '+'}</span></button>`).join('');
+}
+function renderShop() {
+  $('#shopList').innerHTML = BOOSTS.map(b => `<div class="item"><div class="ico" style="--pc:${b.bg}">${b.svg}</div><div class="txt"><b>${b.name}</b><small>${b.desc}</small><div class="own">Ne hai: ${save.boosts[b.id]}</div></div>` +
+    `<button class="btn small withic${save.coins >= b.price ? '' : ' off'}" data-act="buy" data-id="${b.id}"><i class="ci">${COIN}</i>${b.price}</button></div>`).join('') +
+    `<p class="note">Se finisci le mosse puoi comprarne 5 in più per ${MOVES_PRICE} monete. Le monete si guadagnano vincendo: più punti fai, più ne ricevi.</p>`;
+  updateCoins();
+}
+function openShop() { $('#shopMsg').textContent = ''; renderShop(); show('shop'); }
+function buyBoost(id) {
+  const b = BOOSTS.find(x => x.id === id); if (!b) return false;
+  if (save.coins < b.price) return false;
+  wallet(s => { s.coins -= b.price; s.boosts[id]++; });
+  return true;
+}
+function openBoostBuy(id) {
+  const b = BOOSTS.find(x => x.id === id), can = save.coins >= b.price;
+  modal(`<div class="avbig" style="--pc:${b.bg}">${b.svg}</div><h2>${b.name}</h2><p>${b.desc}</p><p class="wal"><i class="ci">${COIN}</i> Hai <b>${save.coins}</b> monete</p><div class="btns">` +
+    (can ? `<button class="btn primary withic" data-act="buyGame" data-id="${id}"><i class="ci">${COIN}</i> Compra (${b.price})</button>` : `<p>Ti servono ancora ${b.price - save.coins} monete. Vinci qualche livello per guadagnarne!</p>`) +
+    '<button class="btn" data-act="close">Chiudi</button></div>');
+}
+async function useBoost(r, c) {
+  const id = armed, tl = board[r][c];
+  if (!id || !tl || busy || over || !save.boosts[id]) return;
+  const clear = new Set();
+  if (id === 'hammer') clear.add(r * N + c);
+  else if (id === 'row') { for (let x = 0; x < N; x++) clear.add(r * N + x); }
+  else if (id === 'color') { if (tl.t >= 0) forEachTile(t => { if (t.t === tl.t) clear.add(t.r * N + t.c); }); else clear.add(r * N + c); }
+  armed = null; setBoostMsg('');
+  wallet(s => { s.boosts[id]--; }); renderBoosts();
+  busy = true; deselect(); resetHint(true);
+  try {
+    sfx.star(1);
+    await applyClear(clear, new Map(), 1, 0);
+    await gravity();
+    await cascade(null);
+    await settle();
+  } catch (e) { if (!(e instanceof Cancel)) throw e; }
+}
+async function useShuffle() {
+  wallet(s => { s.boosts.shuffle--; });
+  armed = null; setBoostMsg(''); renderBoosts();
+  busy = true; deselect(); resetHint(true);
+  try { await shuffle(); } catch (e) { if (!(e instanceof Cancel)) throw e; return; }
+  busy = false; resetHint();
+}
+
 /* ---------- profilo: icone e statistiche ---------- */
 const ICONS = [
   ...[0, 1, 2, 3, 4, 5].map(t => ({ svg: candy(t, 0), bg: LIGHT[t] })),
@@ -1015,7 +1149,7 @@ function openProfile() {
   const sum = save.stars.reduce((a, b) => a + (b || 0), 0);
   const three = save.stars.filter(x => x >= 3).length;
   const rows = [['Livelli completati', `${done} / ${total}`], ['Stelle', `${sum} / ${total * 3}`], ['Livelli a 3 stelle', three],
-    ['Partite vinte', st.wins], ['Partite perse', st.losses], ['Miglior punteggio', st.best]];
+    ['Partite vinte', st.wins], ['Partite perse', st.losses], ['Miglior punteggio', st.best], ['Monete', save.coins]];
   modal(`<div class="avbig" style="--pc:${o.bg}">${o.svg}</div><h2>${esc(accountName)}</h2>` +
     rows.map(([k, v]) => `<div class="srow"><span>${k}</span><b>${v}</b></div>`).join('') +
     '<div class="btns"><button class="btn primary" data-act="changeIcon">Cambia icona</button><button class="btn" data-act="close">Chiudi</button><button class="btn danger" data-act="logout">Esci</button></div>');
@@ -1026,10 +1160,10 @@ function askLogout() {
     '<div class="btns"><button class="btn danger" data-act="logoutYes">Sì, esci</button><button class="btn" data-act="close">Annulla</button></div>');
 }
 
-function openWin(stars) {
+function openWin(stars, earn = 0) {
   const hasNext = lvIdx + 1 < LEVELS.length;
   const st = [0, 1, 2].map(i => `<span class="st ${i < stars ? 'earn' : ''}" style="animation-delay:${(.35 + i * .35).toFixed(2)}s">${starSVG(i < stars)}</span>`).join('');
-  modal(`<h2>Che bontà!</h2><div class="stars">${st}</div><p>Punteggio: <b>${score}</b></p><p>Mosse avanzate: ${moves}</p><div class="btns">${hasNext ? '<button class="btn primary" data-act="next">Livello successivo</button>' : '<p>Hai completato tutti i livelli!</p>'}<button class="btn" data-act="retry">Rigioca</button><button class="btn" data-act="levels">Livelli</button></div>`);
+  modal(`<h2>Che bontà!</h2><div class="stars">${st}</div><p>Punteggio: <b>${score}</b></p><p>Mosse avanzate: ${moves}</p><p class="earn"><i class="ci">${COIN}</i> <b>+${earn}</b> monete</p><div class="btns">${hasNext ? '<button class="btn primary" data-act="next">Livello successivo</button>' : '<p>Hai completato tutti i livelli!</p>'}<button class="btn" data-act="retry">Rigioca</button><button class="btn" data-act="levels">Livelli</button></div>`);
   for (let i = 0; i < stars; i++) setTimeout(() => sfx.star(i), (.35 + i * .35) * 1000 + 100);
 }
 function openLose() {
@@ -1037,7 +1171,10 @@ function openLose() {
     g.k === 'score' ? `Ti mancano ${goalLeft(g)} punti` :
     g.k === 'collect' ? `Ti mancano ${goalLeft(g)} dolcetti ${CW[g.t]}` :
     `Ci sono ancora ${iceLeft} caselle di ghiaccio`);
-  modal(`<h2>Mosse finite</h2>${left.map(t => `<p>${t}</p>`).join('')}<div class="btns"><button class="btn primary" data-act="retry">Riprova</button><button class="btn" data-act="levels">Livelli</button></div>`);
+  const can = save.coins >= MOVES_PRICE;
+  modal(`<h2>Mosse finite</h2>${left.map(t => `<p>${t}</p>`).join('')}<p class="wal"><i class="ci">${COIN}</i> Hai <b>${save.coins}</b> monete</p><div class="btns">` +
+    (can ? `<button class="btn primary withic" data-act="buyMoves"><i class="ci">${COIN}</i> +5 mosse (${MOVES_PRICE})</button>` : `<p>Servono ${MOVES_PRICE} monete per comprare 5 mosse.</p>`) +
+    `<button class="btn${can ? '' : ' primary'}" data-act="retry">Riprova</button><button class="btn" data-act="levels">Livelli</button></div>`);
 }
 function openPause() {
   clearTimeout(hintTimer);
@@ -1082,6 +1219,32 @@ const acts = {
   next() { closeModal(); openLevel(lvIdx + 1); },
   tsnd() { setSfx(!Snd.sfx); },
   tmus() { setMusic(!Snd.music); },
+  shop() { closeModal(); openShop(); },
+  buy(b) {
+    const it = BOOSTS.find(x => x.id === b.dataset.id), msg = $('#shopMsg');
+    if (buyBoost(it.id)) { sfx.star(2); msg.style.color = '#0f8a63'; msg.textContent = 'Comprato: ' + it.name + '!'; }
+    else { sfx.bad(); msg.style.color = '#e0274f'; msg.textContent = 'Ti servono ancora ' + (it.price - save.coins) + ' monete'; }
+    renderShop();
+  },
+  buyGame(b) {
+    if (buyBoost(b.dataset.id)) { sfx.star(2); closeModal(); renderBoosts(); resetHint(); }
+    else { sfx.bad(); }
+  },
+  boost(b) {
+    if (busy || over) return;
+    const id = b.dataset.id, bo = BOOSTS.find(x => x.id === id);
+    if (!save.boosts[id]) { openBoostBuy(id); return; }
+    if (armed === id) { armed = null; setBoostMsg(''); renderBoosts(); return; }
+    if (id === 'shuffle') { useShuffle(); return; }
+    armed = id; setBoostMsg(bo.tip); renderBoosts(); resetHint(true);
+  },
+  buyMoves() {
+    if (!over || save.coins < MOVES_PRICE) return;
+    save.stats.losses = Math.max(0, save.stats.losses - 1);
+    wallet(s => { s.coins -= MOVES_PRICE; });
+    moves += 5; over = false; busy = false;
+    closeModal(); hud(); resetHint(); sfx.star(2); banner('+5 mosse!');
+  },
   profile() { openProfile(); },
   changeIcon() { openIconPicker(false); },
   pick(b) {
@@ -1116,6 +1279,9 @@ document.addEventListener('visibilitychange', () => {
   setTimeout(() => { if ($('#boot').classList.contains('on')) { window.DolcettiApp.setAccount(null); show('menu'); } }, 8000);
   $('#showcase').innerHTML = [0, 1, 2, 3, 4, 5].map(t => `<i style="--rot:${(t % 2 ? 1 : -1) * (5 + t * 2)}deg">${candy(t, 0)}</i>`).join('');
   document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = IC[el.dataset.icon]; });
+  document.querySelectorAll('.coinI').forEach(el => { el.innerHTML = COIN; });
+  document.querySelectorAll('.shopI').forEach(el => { el.innerHTML = SHOP; });
+  $('#shopArt').innerHTML = SHOP; updateCoins(); renderBoosts();
   for (let i = 0; i < N * N; i++) {
     const a = document.createElement('div'); a.className = ((i / N | 0) + i % N) % 2 ? 'b' : 'a'; bgEl.appendChild(a);
     iceEl.appendChild(document.createElement('div'));
@@ -1199,7 +1365,10 @@ function merge(local, cloud) {
   const ls = local.stats || {}, cs = cloud.stats || {}, stats = {};
   for (const k of ['wins', 'losses', 'best']) stats[k] = Math.max(+ls[k] || 0, +cs[k] || 0);
   const icon = Number.isInteger(cloud.icon) && cloud.icon >= 0 ? cloud.icon : (Number.isInteger(local.icon) ? local.icon : -1);
-  return { stars: st, sfx: cloud.sfx !== false, music: cloud.music !== false, icon, stats };
+  const lw = +local.wAt || 0, cw = +cloud.wAt || 0, src = cw >= lw ? cloud : local;
+  const boosts = {}; for (const k of ['hammer', 'row', 'color', 'shuffle']) boosts[k] = Math.max(0, Math.floor(+((src.boosts || {})[k])) || 0);
+  const coins = Number.isInteger(src.coins) && src.coins > 0 ? src.coins : 0;
+  return { stars: st, sfx: cloud.sfx !== false, music: cloud.music !== false, icon, stats, coins, boosts, wAt: Math.max(lw, cw) };
 }
 const setStatus = t => App.setStatus(t);
 const msg = (t, ok) => { const m = $('#lgMsg'); m.textContent = t || ''; m.classList.toggle('ok', !!ok); };
@@ -1232,6 +1401,7 @@ async function pushNow() {
     await withTimeout(fb.setDoc(fb.doc(db, 'players', user.uid), {
       name, stars: stars(s.stars), sfx: s.sfx !== false, music: s.music !== false,
       icon: Number.isInteger(s.icon) ? s.icon : -1, stats: { wins: s.stats.wins, losses: s.stats.losses, best: s.stats.best },
+      coins: s.coins, boosts: { hammer: s.boosts.hammer, row: s.boosts.row, color: s.boosts.color, shuffle: s.boosts.shuffle }, wAt: s.wAt,
       updatedAt: fb.serverTimestamp()
     }), 6000);
     setStatus('Salvato nel cloud');
